@@ -2,6 +2,11 @@
 
 WIP
 
+You can build and install this with the following:
+```
+cmake -B build/ -DCMAKE_INSTALL_PREFIX=~/kde/usr && cmake --build build/ && cmake --install build/
+```
+
 ## Brainstorm architecture
 - Library component - abstracts over `rpm-ostree`/`bootc`, as well as `mokutil` or something else that's not as bad
     - Abstracts `rpm-ostree` for:

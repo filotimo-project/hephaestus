@@ -1,0 +1,16 @@
+{
+    "KPlugin": {
+        "Name": "System Administration",
+        "Description": "Administer System",
+        "Icon": "fedora-logo-icon",
+        "FormFactors": [
+            "tablet",
+            "handset",
+            "desktop"
+        ]
+    },
+    "X-KDE-Keywords": "Update,System,Admin,Administration,Administrator,Developer",
+    "X-KDE-ParentApp": "kcontrol",
+    "X-KDE-System-Settings-Parent-Category": "system-administration",
+    "X-KDE-Weight": 0
+}

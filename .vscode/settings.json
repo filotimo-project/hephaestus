@@ -1,0 +1,5 @@
+{
+    "cmake.configureArgs": [
+        "-DCMAKE_INSTALL_PREFIX=~/kde/usr"
+    ]
+}
