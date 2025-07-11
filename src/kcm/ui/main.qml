@@ -11,18 +11,24 @@ import org.kde.kcmutils as KCMUtils
 
 KCMUtils.SimpleKCM {
     id: root
-
-    Controls.Label {
-        visible: kcm.developerOptions.developerModeEnabled
-        text: i18n("Developer mode enabled")
-    }
     
     Kirigami.FormLayout {
         Controls.Button {
+            enabled: !kcm.developerMode.enabled
             text: i18n("Enable Developer Mode")
             onClicked: {
-                kcm.developerOptions.enableDeveloperMode();
+                kcm.developerMode.enable();
             }
+        }
+
+        Controls.Label {
+            visible: kcm.developerMode.enabled
+            text: i18n("Developer mode enabled")
+        }
+
+        Controls.Label {
+            visible: kcm.currentTransactionWatcher.transaction !== null && !kcm.currentTransactionWatcher.transaction.finished
+            text: i18n("Ongoing transaction title: %1", kcm.currentTransactionWatcher.transaction.title)
         }
     }
 }

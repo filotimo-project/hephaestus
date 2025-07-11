@@ -9,8 +9,6 @@
 #include "RpmOstreeInterface.h"
 #include "RpmOstreeInterfaceTypes.h"
 
-#define RPM_OSTREE_SERVICE_NAME u"org.projectatomic.rpmostree1"_s
-
 using namespace Qt::Literals::StringLiterals;
 
 RpmOstreeInterface::RpmOstreeInterface(QObject *parent)
@@ -18,41 +16,39 @@ RpmOstreeInterface::RpmOstreeInterface(QObject *parent)
 {
     registerDbusTypes();
 
-    QString objectPath = u"/org/projectatomic/rpmostree1/Sysroot"_s;
+    m_rpmOstreeSysrootInterface =
+        new OrgProjectatomicRpmostree1SysrootInterface(RPM_OSTREE_SERVICE_NAME, RPM_OSTREE_SYSROOT_OBJECT_PATH, QDBusConnection::systemBus(), this);
 
-    m_rpmOstreeSysrootInterface = new OrgProjectatomicRpmostree1SysrootInterface(RPM_OSTREE_SERVICE_NAME, objectPath, QDBusConnection::systemBus(), this);
+    // Register the client with rpm-ostree.
+    m_clientId[QLatin1String("id")] = QVariant{QStringLiteral("hephaestus")};
 
-    // Register the client with rpm-ostree
-    // Ensures the daemon stays running while we are using it
-    m_clientId = {{u"id"_s, u"hephaestus"_s}};
     auto pendingCall = m_rpmOstreeSysrootInterface->RegisterClient(m_clientId);
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pendingCall, this);
 
     QObject::connect(watcher, &QDBusPendingCallWatcher::finished, [](QDBusPendingCallWatcher *localWatcher) {
-        QDBusReply<void> reply = *localWatcher;
-        if (reply.isValid()) {
-            qWarning() << "Failed to register client with rpm-ostree:" << reply.error().message();
-        }
-
+        QDBusPendingReply<> reply = *localWatcher;
         localWatcher->deleteLater();
+        if (reply.isError()) {
+            qWarning() << "Failed to register client with rpm-ostree:" << qPrintable(QDBusConnection::systemBus().lastError().message());
+        }
     });
 }
 
 RpmOstreeInterface::~RpmOstreeInterface()
 {
-    // Unregister the client when the interface is destroyed
+    // Unregister the client when the interface is destroyed.
     auto pendingCall = m_rpmOstreeSysrootInterface->UnregisterClient(m_clientId);
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pendingCall, this);
 
     QObject::connect(watcher, &QDBusPendingCallWatcher::finished, [](QDBusPendingCallWatcher *localWatcher) {
-        QDBusReply<void> reply = *localWatcher;
-        if (reply.isValid()) {
-            qWarning() << "Failed to unregister client with rpm-ostree -- this may cause the daemon to stay open indefinitely:" << reply.error().message();
-        }
-
+        QDBusPendingReply<> reply = *localWatcher;
         localWatcher->deleteLater();
+        if (reply.isError()) {
+            qWarning() << "Failed to unregister client with rpm-ostree -- this may cause the daemon to stay open indefinitely:"
+                       << qPrintable(QDBusConnection::systemBus().lastError().message());
+        }
     });
 
     delete m_rpmOstreeSysrootInterface;
@@ -68,9 +64,9 @@ OrgProjectatomicRpmostree1OSExperimentalInterface *RpmOstreeInterface::osExperim
     return new OrgProjectatomicRpmostree1OSExperimentalInterface(RPM_OSTREE_SERVICE_NAME, objectPath.path(), QDBusConnection::systemBus(), this);
 }
 
-OrgProjectatomicRpmostree1TransactionInterface *RpmOstreeInterface::transaction(QDBusObjectPath objectPath)
+OrgProjectatomicRpmostree1TransactionInterface *RpmOstreeInterface::transaction(QDBusConnection peerConnection)
 {
-    return new OrgProjectatomicRpmostree1TransactionInterface(RPM_OSTREE_SERVICE_NAME, objectPath.path(), QDBusConnection::systemBus(), this);
+    return new OrgProjectatomicRpmostree1TransactionInterface(RPM_OSTREE_SERVICE_NAME, u"/"_s, peerConnection, this);
 }
 
 RpmOstreeInterface *sharedRpmOstreeInterface()

@@ -256,11 +256,11 @@ inline const QDBusArgument &operator>>(const QDBusArgument &argument, DeltaTuple
     return argument;
 }
 
-//==============================================================================
-// REGISTRATION FUNCTION
-//==============================================================================
+//
+// Registration function for D-Bus types
+//
 
-// Call this function once at the start of your application
+// This is called at instantiation of RpmOstreeInterface to register the types with D-Bus
 inline void registerDbusTypes()
 {
     // Register the struct types

@@ -5,22 +5,30 @@
 
 #pragma once
 
-#include "DeveloperOptions.h"
+#include "CurrentTransactionWatcher.h"
+#include "DeveloperMode.h"
 #include <KQuickConfigModule>
 
 class HephaestusSettings : public KQuickConfigModule
 {
     Q_OBJECT
-    Q_PROPERTY(DeveloperOptions *developerOptions READ developerOptions CONSTANT)
+    Q_PROPERTY(DeveloperMode *developerMode READ developerMode CONSTANT)
+    Q_PROPERTY(CurrentTransactionWatcher *currentTransactionWatcher READ currentTransactionWatcher CONSTANT)
 
 public:
     HephaestusSettings(QObject *parent, const KPluginMetaData &data);
 
-    DeveloperOptions *developerOptions() const
+    DeveloperMode *developerMode() const
     {
-        return m_developerOptions;
+        return m_developerMode;
+    }
+
+    CurrentTransactionWatcher *currentTransactionWatcher() const
+    {
+        return m_transactionWatcher;
     }
 
 private:
-    DeveloperOptions *m_developerOptions;
+    DeveloperMode *m_developerMode;
+    CurrentTransactionWatcher *m_transactionWatcher;
 };

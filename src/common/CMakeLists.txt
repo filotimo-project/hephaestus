@@ -7,10 +7,14 @@ qt_add_dbus_interface(HephaestusCommon_SRCS org.projectatomic.rpmostree1.xml Rpm
 add_library(HephaestusCommon STATIC)
 
 target_sources(HephaestusCommon PRIVATE
-    DeveloperOptions.h
-    DeveloperOptions.cpp
+    DeveloperMode.h
+    DeveloperMode.cpp
     RpmOstreeInterface.cpp
     RpmOstreeInterface.h
+    Transaction.cpp
+    Transaction.h
+    CurrentTransactionWatcher.cpp
+    CurrentTransactionWatcher.h
     RpmOstreeInterfaceTypes.h
     ${HephaestusCommon_SRCS}
 )
